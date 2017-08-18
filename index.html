@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+        <title>CTG</title>
+
+         <!-- Bootstrap CSS CDN -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Our Custom CSS -->
+        <link rel="stylesheet" href="style2.css">
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+		<script src="d3.min.js"></script>
+  
+    </head>
+    <body>
+
+
+
+        <div class="wrapper">
+            <!-- Sidebar Holder -->
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <h3 align="center"><a href="index.html">CTG</a></h3>
+                </div>
+
+                <ul class="list-unstyled components">
+                    
+                    <li class="active">
+                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Tables</a>
+                        <ul class="collapse list-unstyled" id="homeSubmenu">
+                             <li><a href="table1a.html">Table 1a</a></li>
+                            <li><a href="table4.html">Table 4</a></li>
+                            
+                        </ul>
+                    </li>
+                    <li>
+                     
+                        <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Charts</a>
+                        <ul class="collapse list-unstyled" id="pageSubmenu">
+                           <li><a href="annual-chart1.html">Chart 1 (Page - 8)</a></li>
+                            <li><a href="annual-chart2.html">Chart 2 (Page - 9)</a></li>
+                            <li><a href="annual-chart7.html">Chart 7 (Page - 46)</a></li>
+                            <li><a href="annual-chart11.html">Chart 11 (Page - 48)</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                       
+						 <a href="#mapSubmenu" data-toggle="collapse" aria-expanded="false">Maps</a>
+                        <ul class="collapse list-unstyled" id="mapSubmenu">
+                            <li><a href="annual-map1.html">Map 1 (Page - 13)</a></li>
+							<li><a href="map-adult-care-facilities.html">Map Adult Care Facility</a></li>
+                          </ul>
+                    </li>
+                    
+                </ul>
+
+              
+            </nav>
+			</div>
+		<div class="wrapper">
+            <!-- Page Content Holder -->
+            <div id="content">
+
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+
+                        <div class="navbar-header">
+                            <button type="button" id="sidebarCollapse" class="btn btn-info navbar-btn">
+                                <i class="glyphicon glyphicon-align-left"></i>
+                                <span>HOME</span>
+                            </button>
+                        </div>
+
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                           
+                        </div>
+                    </div>
+                </nav>
+				<script>
+
+var treeData =
+  {
+    "name": "CTG",
+    "children": [
+      { 
+        "name": "Adult Care Facility",
+        "children": [
+          { "name": "Adult Care Facilities for All Counties — Map" }
+          
+        ]
+      },
+      { "name": "Vital Statistics",
+		"children": [
+		 {"name": "Charts",
+		 "children": [
+		 {"name": "Chart 1. Population Distribution By Age Group And Region"},
+		 {"name": "Chart 2. Population, Births, and Deaths, 2005-2014"},
+		 {"name": "Chart 7. Leading Underlying Causes Of Death"},
+		 {"name": "Chart 11. Place of Death"},
+		 {"name": "Chart 12. Disposition after Death"},
+		 {"name": "Chart 13. Age-Adjusted Suicide Mortality Rates by Race/Ethnicity"},
+		 {"name": "Chart 14. Age-Adjusted Suicide Mortality Rates by Gender"},
+		 {"name": "Chart 19 : Opioid - Related Age - Adjusted Mortality Rates by Gender"},
+		 {"name": "Chart 20 : Opioid - Related Age - Adjusted Mortality Rates by Race / Ethnicity"}
+		 ]},
+		 {"name": "Maps",
+		 "children":[
+		 {"name": "Map 1. Birth Rate per 1,000 Population by County"},
+		 {"name": "Map 2. Death Rates by County"},
+		 {"name": "Map 4. Percent of All Live Births that are Cesarean Delivery"}
+		 ]},
+		 {"name": "Tables",
+		 "children": [
+		 {"name": "Table 1: Estimated Population By Age, Sex And Region"},
+		 {"name": "Table 1a: Female Population Among Child Bearing Ages By County"},
+		 {"name": "Table 4: Live Birth Summary By Mother's Race/Ethnicity"},
+		 {"name": "Table 6a: Live Births By Race/Ethnicity, Birthweight And Mother's Age"},
+		 {"name": "Table 6b: Live Births By Race/Ethnicity, Month Prenatal Care Began And Mother's Age"},
+		 {"name": "Table 7: Live Births by Mother's Age and Resident County"},
+		 {"name": "Table 8: Live Birth And Fertility Rates By Mother's Age And Resident County"},
+		 {"name": "Table 9: Live Births By Race/Ethnicity And Resident County"},
+		 {"name": "Table 10: Out Of Wedlock Live Births By Mother's Age And Resident County"},
+		 {"name": "Table 11: Low Birthweight By Mother's Age And Resident County"},
+		 {"name": "Table 11a: Live Births By Birthweight And Resident County"},
+		 {"name": "Table 11b: Live Births By Gestation And Resident County"},
+		 {"name": "Table 12: Live Births by Month Prenatal Care Began and Resident County"},
+		 {"name": "Table 12a: Percent^ Early and Late or No Prenatal Care, Age and Resident County"},
+		 {"name": "Table 12b: Percent^ Early and Late or No Prenatal Care, Race and Resident County"},
+		 {"name": "Table 13: Live Births By Financial Coverage And Resident County"},
+		 {"name": "Table 14: Live Births by Method of Delivery and Resident County"},
+		 {"name": "Table 15: Most Popular Birth Names by Sex (All Years)"},
+		 {"name": "Table 15a: Most Popular Birth Names by Sex (Select Year)"},
+		 {"name": "Table 35: Deaths by Age and Resident County"},
+		 {"name": "Table 36: Death Rates* By Age And Resident County"},
+		 {"name": "Table 37: Deaths by Race/Ethnicity and Resident County"}
+		 ]}
+		 
+		 ]
+		},
+		{
+		"name": "Managed Long Term Care",
+		"children": [
+		{"name": "2016 Plan Performance - Managed Long-Term Care"}
+		]}
+    ]
+  };
+  
+   var margin = {top: 40, right: 350, bottom: 20, left: 50};
+        var fullwidth = window.innerWidth; //use the window's width
+        var fullheight = window.innerHeight * 0.70; // adjust window's height to fit
+        var width = fullwidth - margin.left - margin.right;
+        var height = fullheight - margin.top - margin.bottom;
+       
+
+var svg = d3.select("#content").append("svg")
+    .attr("width", width + margin.right + margin.left)
+    .attr("height", height + margin.top + margin.bottom)
+	.append("g")
+    .attr("transform", "translate("
+          + margin.left + "," + margin.top + ")");
+
+var i = 0,
+    duration = 750,
+    root;
+
+var treemap = d3.tree().size([height, width]);
+
+root = d3.hierarchy(treeData, function(d) { return d.children; });
+root.x0 = height / 2;
+root.y0 = 0;
+
+root.children.forEach(collapse);
+
+update(root);
+
+function collapse(d) {
+  if(d.children) {
+    d._children = d.children
+    d._children.forEach(collapse)
+    d.children = null
+  }
+}
+
+function update(source) {
+
+	var treeData = treemap(root);
+
+	var nodes = treeData.descendants(),
+      links = treeData.descendants().slice(1);
+
+	nodes.forEach(function(d){ d.y = d.depth * 180});
+
+	var node = svg.selectAll('g.node')
+      .data(nodes, function(d) {return d.id || (d.id = ++i); });
+	var nodeEnter = node.enter().append('g')
+      .attr('class', 'node')
+      .attr("transform", function(d) {
+        return "translate(" + source.y0 + "," + source.x0 + ")";
+    })
+    .on('click', click);
+
+	nodeEnter.append('circle')
+      .attr('class', 'node')
+      .attr('r', 1e-6)
+      .style("fill", function(d) {
+          return d._children ? "steelblue" : "#fff";
+      });
+
+	nodeEnter.append('text')
+      .attr("dy", ".35em")
+      .attr("x", function(d) {
+          return d.children || d._children ? -13 : 13;
+      })
+	  .attr("font-weight","bold")
+      .attr("text-anchor", function(d) {
+          return d.children || d._children ? "end" : "start";
+      })
+      .text(function(d) { return d.data.name; })
+	  .attr("size", 12)
+	  .attr('cursor', 'pointer');;
+
+	  var nodeUpdate = nodeEnter.merge(node);
+
+	nodeUpdate.transition()
+    .duration(duration)
+    .attr("transform", function(d) { 
+        return "translate(" + d.y + "," + d.x + ")";
+     });
+
+	nodeUpdate.select('circle.node')
+    .attr('r', 10)
+    .style("fill", function(d) {
+        return d._children ? "lightsteelblue" : "steelblue";
+    })
+    .attr('cursor', 'pointer');
+
+
+   var nodeExit = node.exit().transition()
+      .duration(duration)
+      .attr("transform", function(d) {
+          return "translate(" + source.y + "," + source.x + ")";
+      })
+      .remove();
+
+  nodeExit.select('circle')
+    .attr('r', 1e-6);
+
+  nodeExit.select('text')
+   .attr( "fill-opacity", .3 )
+    .style('fill-opacity', 1e-6);
+
+    var link = svg.selectAll('path.link')
+      .data(links, function(d) { return d.id; });
+	  
+	var linkEnter = link.enter().insert('path', "g")
+      .attr("class", "link")
+	  .attr("fill","none")
+	  .attr("stroke","grey")
+	  .attr("stroke-width",1)
+      .attr('d', function(d){
+        var o = {x: source.x0, y: source.y0}
+        return diagonal(o, o)
+      });
+
+  var linkUpdate = linkEnter.merge(link);
+
+   linkUpdate.transition()
+      .duration(duration)
+      .attr('d', function(d){ return diagonal(d, d.parent) });
+
+   var linkExit = link.exit().transition()
+      .duration(duration)
+      .attr('d', function(d) {
+        var o = {x: source.x, y: source.y}
+        return diagonal(o, o)
+      })
+      .remove();
+
+  nodes.forEach(function(d){
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+
+   function diagonal(s, d) {
+
+    path = `M ${s.y} ${s.x}
+            C ${(s.y + d.y) / 2} ${s.x},
+              ${(s.y + d.y) / 2} ${d.x},
+              ${d.y} ${d.x}`
+
+    return path
+  }
+
+  function click(d) {
+	if(d.data.name == "Chart 1. Population Distribution By Age Group And Region"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart1.html");
+	}
+	else if(d.data.name == "Chart 2. Population, Births, and Deaths, 2005-2014"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart2.html");
+	}
+	else if(d.data.name == "Chart 7. Leading Underlying Causes Of Death"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart7.html");
+	}
+	else if(d.data.name == "Chart 11. Place of Death"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart11.html");
+	}
+	else if(d.data.name == "Chart 12. Disposition after Death"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart12.html");
+	}
+	else if(d.data.name == "Chart 13. Age-Adjusted Suicide Mortality Rates by Race/Ethnicity"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart13.html");
+	}
+	else if(d.data.name == "Chart 14. Age-Adjusted Suicide Mortality Rates by Gender"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart14.html");
+	}
+	else if(d.data.name == "Chart 19 : Opioid - Related Age - Adjusted Mortality Rates by Gender"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart19.html");
+	}
+	else if(d.data.name == "Chart 20 : Opioid - Related Age - Adjusted Mortality Rates by Race / Ethnicity"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-chart20.html");
+	}
+	else if(d.data.name == "Map 1. Birth Rate per 1,000 Population by County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-map1.html");
+	}
+	else if(d.data.name == "Map 2. Death Rates by County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-map2.html");
+	}
+	else if(d.data.name == "Map 4. Percent of All Live Births that are Cesarean Delivery"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/annual-map4.html");
+	}
+	else if(d.data.name == "Adult Care Facilities for All Counties — Map"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/map_dynamic_load.html");
+	}
+	else if(d.data.name == "2016 Plan Performance - Managed Long-Term Care"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/mltc-consumer-guide.html");
+	}
+	else if(d.data.name == "Table 1: Estimated Population By Age, Sex And Region"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table1.html");
+	}
+	else if(d.data.name == "Table 1a: Female Population Among Child Bearing Ages By County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table1a.html");
+	}
+	else if(d.data.name == "Table 4: Live Birth Summary By Mother's Race/Ethnicity"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table4.html");
+	}
+	else if(d.data.name == "Table 6a: Live Births By Race/Ethnicity, Birthweight And Mother's Age"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table6a.html");
+	}
+	else if(d.data.name == "Table 6b: Live Births By Race/Ethnicity, Month Prenatal Care Began And Mother's Age"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table6b.html");
+	}
+	else if(d.data.name == "Table 7: Live Births by Mother's Age and Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table7.html");
+	}
+	else if(d.data.name == "Table 8: Live Birth And Fertility Rates By Mother's Age And Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table8.html");
+	}
+	else if(d.data.name == "Table 9: Live Births By Race/Ethnicity And Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table9.html");
+	}
+	else if(d.data.name == "Table 10: Out Of Wedlock Live Births By Mother's Age And Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table10.html");
+	}
+	else if(d.data.name == "Table 11: Low Birthweight By Mother's Age And Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table11.html");
+	}
+	else if(d.data.name == "Table 11a: Live Births By Birthweight And Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table11a.html");
+	}
+	else if(d.data.name == "Table 11b: Live Births By Gestation And Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table11b.html");
+	}
+	else if(d.data.name == "Table 12: Live Births by Month Prenatal Care Began and Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table12.html");
+	}
+	else if(d.data.name == "Table 12a: Percent^ Early and Late or No Prenatal Care, Age and Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table12a.html");
+	}
+	else if(d.data.name == "Table 12b: Percent^ Early and Late or No Prenatal Care, Race and Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table12b.html");
+	}
+	else if(d.data.name == "Table 13: Live Births By Financial Coverage And Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table13.html");
+	}
+	else if(d.data.name == "Table 14: Live Births by Method of Delivery and Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table14.html");
+	}
+	else if(d.data.name == "Table 15: Most Popular Birth Names by Sex (All Years)"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table15.html");
+	}
+	else if(d.data.name == "Table 15a: Most Popular Birth Names by Sex (Select Year)"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table15a.html");
+	}
+	else if(d.data.name == "Table 35: Deaths by Age and Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table35.html");
+	}
+	else if(d.data.name == "Table 36: Death Rates* By Age And Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table36.html");
+	}
+	else if(d.data.name == "Table 37: Deaths by Race/Ethnicity and Resident County"){
+	window.open("http://demo.ctg.albany.edu/DOHdemo/doh-2017-tables/table37.html");
+	}
+    if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+    update(d);
+  }
+}
+
+</script>
+                
+             
+            </div>
+        </div>
+
+
+
+
+
+        <!-- jQuery CDN -->
+         <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+         <!-- Bootstrap Js CDN -->
+         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+         <!-- jQuery Nicescroll CDN -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js"></script>
+
+         <script type="text/javascript">
+             $(document).ready(function () {
+                 $("#sidebar").niceScroll({
+                     cursorcolor: '#53619d',
+                     cursorwidth: 4,
+                     cursorborder: 'none'
+                 });
+
+                 $('#sidebarCollapse').on('click', function () {
+                     $('#sidebar, #content').toggleClass('active');
+                     $('.collapse.in').toggleClass('in');
+                     $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+                 });
+             });
+         </script>
+    </body>
+</html>

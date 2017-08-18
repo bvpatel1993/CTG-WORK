@@ -1,0 +1,822 @@
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link rel="stylesheet" href="css/doh16-map-styles.css"></link>
+        <link rel="stylesheet" href="css/doh16-styles.css"></link>
+		<link rel="stylesheet" href="css/doh16-print.css"></link>
+  
+        <title>CTG</title>
+
+         <!-- Bootstrap CSS CDN -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Our Custom CSS -->
+        <link rel="stylesheet" href="style2.css">
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+		<script src="d3.min.js"></script>
+		<script src="d3-tip.js"></script>
+		<script src="js/maps/jquery.mousewheel.min.js"></script>
+        <script src="js/maps/raphael.min.js"></script>
+		<script src="js/maps/jquery.mapael.min.js" charset="utf-8"></script>
+        <script src="js/maps/vital_stats_birth.js" charset="utf-8"></script>
+        <script src="js/maps/world_countries.js" charset="utf-8"></script>
+        <script src="js/maps/usa_states.js" charset="utf-8"></script>
+       
+  <script src="modules/commonModules.js"></script>
+ 
+    </head>
+    <body>
+
+
+
+        <div class="wrapper">
+            <!-- Sidebar Holder -->
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                  <h3 align="center"><a href="index.html">CTG</a></h3>
+                </div>
+
+                <ul class="list-unstyled components">
+                    
+                    <li class="active">
+                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Tables</a>
+                        <ul class="collapse list-unstyled" id="homeSubmenu">
+                            <li><a href="table1a.html">Table 1a</a></li>
+                            <li><a href="table4.html">Table 4</a></li>
+                            
+                        </ul>
+                    </li>
+                    <li>
+                     
+                        <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Charts</a>
+                        <ul class="collapse list-unstyled" id="pageSubmenu">
+                            <li><a href="annual-chart1.html">Chart 1 (Page - 8)</a></li>
+                            <li><a href="annual-chart2.html">Chart 2 (Page - 9)</a></li>
+                            <li><a href="annual-chart7.html">Chart 7 (Page - 46)</a></li>
+                            <li><a href="annual-chart11.html">Chart 11 (Page - 48)</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                       
+						 <a href="#mapSubmenu" data-toggle="collapse" aria-expanded="false">Maps</a>
+                        <ul class="collapse list-unstyled" id="mapSubmenu">
+                            <li><a href="annual-map1.html">Map 1 (Page - 13)</a></li>
+							<li><a href="map-adult-care-facilities.html">Map Adult Care Facility</a></li>
+                          </ul>
+                    </li>
+                   
+                </ul>
+
+              
+            </nav>
+				</div>
+		<div class="wrapper">
+            <!-- Page Content Holder -->
+			
+            <div id="content">
+				
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+
+                        <div class="navbar-header">
+                            <button type="button" id="sidebarCollapse" class="btn btn-info navbar-btn">
+                                <i class="glyphicon glyphicon-align-left"></i>
+                                <span>Menu</span>
+                            </button>
+                        </div>
+
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                           
+                        </div>
+                    </div>
+                </nav>
+
+           <script type="text/javascript">
+
+            
+            // selected options from select lists for Population
+            var selectedPalette; 
+
+            // labels for select listfor Population
+            var lblPalette = $('<label for="sbPalette">Select Map Colors: </label>');
+
+            // initializes indexes for select list to 0
+            var paletteIndex = 0;
+
+            // sets default index for each select list on initial page load
+            var paletteIndex2 = 0;
+
+            // wrap Javascript in anonymous function for closure
+            $(function () {	
+		
+                d3.csv( "https://health.data.ny.gov/resource/9vjs-q28b.csv?$limit=50000&$select=year&$group=year&$order=year DESC", function(error, data) {
+                    if (error) throw error;
+                    
+                    // Creates year array for select list
+                    // Also saves the first year in the array as the default
+                    // selectedYear variable. This variable is used to query the dataset later 
+                    // and to display the year in theheading. 
+                    paletteArray = ["paletteLightBlue", "LightBlue", "paletteDarkBlue", "DarkBlue", "paletteGreen", "Green", "paletteBrown", "Brown", "paletteRedYellow", "RedYellow", "paletteGray", "Gray"];
+                    
+                    createSelectList(paletteArray, "sbPalette");
+                    
+                    $('#sbPalette').prop('selectedIndex', paletteIndex2);
+                    selectedPalette = $('#sbPalette').val();
+                    
+                    var yearArray = []; 
+                    // create name|value array for select list options
+        
+                    // jQuery function to iterate through array of payers from query
+                    $.each( data, function(i, item) {
+                        // replace spaces with underscores in option values
+                        yearArray.push(item['year'].replace(/\s/g,"_"));
+                        // display option name as is, no regex replacements
+                        yearArray.push(item['year']);
+                    })
+        
+                    // call createSelectList function with new parameter values
+                    createSelectList(yearArray, "sbYear");	
+
+                    $('#sbYear option[value="'+selectedYear+'"]').attr('selected','selected');
+        
+                    selectedYear = $('#sbYear').val();
+              
+                    selectedYear = selectedYear.replace(/_/g,' ');        
+    
+                    // call initializePage function
+                    initializePage();
+
+                });  // close out d3.csv 
+
+                function createSelectList (sBoxElements, sbID) {
+    
+                    // Create the selection element.
+                    var sel = $('<select class="sBoxes" id="'+sbID+'"></select>');
+
+                    // loops through the array of options.
+                    for (index = 0; index < sBoxElements.length; index += 2) {
+                        // Append the option to the selection box.
+                        sel.append('<option value='+sBoxElements[index]+'>'+sBoxElements[index+1]+'</option>');
+                    }
+                    //var fieldSet = $('<fieldset style="margin-bottom: 12px; background-color: #f2f2f2"><legend>Filter table by year</legend>'+sel+'</fieldset>');
+                    // Append the selection box to the correct position within fieldset.
+                    $(sel).insertAfter('legend');
+                }
+
+
+            function initializePage() {	
+
+                    // Builds top of page with select lists and labels
+                    var lblYear = $('<label for="sbYear">Year: </label>');
+                    $(lblYear).insertBefore('#sbYear');
+                    $(lblPalette).insertBefore('#sbPalette');
+
+                    // Calls preDraw function to print the page heading when selection changes
+                    $('#sbYear').change(function() {         
+                      preDraw();     
+                    }); 
+
+                    // Re-queries to rebuild select list based on change in Palette selection.
+                    $('#sbPalette').change(function() {
+                        preDraw();        
+                    }); // Closes out Palette change function  
+
+                    // Calls preDraw function to print the page heading on initial page load
+                    preDraw();	
+                }
+
+                function preDraw() {
+                    selectedYear = $('#sbYear').val();
+                    selectedPalette = $('#sbPalette').val();   
+                    draw();
+                }
+                
+                function draw() {
+                    var color;
+                    var mapStrokeColor = "#ced8d0";
+                    var mapTextColor = "#ffffff";
+                    var paletteDarkBlue = ["#000066","#003399","#0066cc","#0099ff"];
+                    var paletteLightBlue =["#eff3ff","#bdd7e7","#6baed6", "#3182bd"];
+                    var paletteBrown = ["#663311","#8a5711","#bc9c63","#df7500"];
+                    var paletteRedYellow = ["#ff0000","#ff3f00","#ff7e00","#ffbd00"];
+                    var paletteGray = ["#999999","#666666","#333333","#000000"];
+                    var paletteGreen = ["#8b7a32","#8e9431","#566727","#1d4504"];
+                    if (selectedPalette == "paletteDarkBlue") {
+                    color = paletteDarkBlue;
+                    }
+                    else if (selectedPalette == "paletteLightBlue") {
+                    color = paletteLightBlue;
+                    mapStrokeColor = "#000000"
+                    mapTextColor = "#000000";
+                    }
+                    else if (selectedPalette == "paletteBrown") {
+                    color = paletteBrown;
+                    }
+                    else if (selectedPalette == "paletteRedYellow") {
+                    color = paletteRedYellow;
+                    }
+                    else if (selectedPalette == "paletteGray") {
+                    color = paletteGray;
+                    }
+                    else {
+                    color = paletteGreen;  
+                    }
+ 
+                    $(".mapcontainer span").html("Loading JSON data").css({"color":"blue", "font-weight":"bold"});
+                    
+                    // Inserts selected year into where clause in query and creates h1 and h2 headings
+                    selector = "&$where=year='"+selectedYear+"'";
+                    $('h1').html('Vital Statistics Annual Report');
+                    $('h2').html('(Page 13) Map 1. Birth Rate per 1,000 Population by County: New York State ' +selectedYear);                
+
+                    // Create an empty array for the data and then get the data via a jQuery JSON select
+                    var arr = jQuery.makeArray( );
+                    var brr = jQuery.makeArray( );
+ 
+                    $.getJSON("https://health.data.ny.gov/resource/9vjs-q28b.json?$select=county,value"+selector+"&$order=county,mother_s_age_range", function (data) {
+
+                        for (i = 0; i < data.length; i++) {
+                        
+                        arr[i] = data[i].value;
+                            if (data[i].county !== "New York City" || data[i].county !== "New York State" || data[i] !== "Rest of State") {
+                                brr[i] = data[i].county;
+                            }
+                        }
+                        
+                        var counties = {};
+                        var total = {};
+                        $.each(data, function (id, elem) {
+                            // Check if we have the GPS position of the element
+                            
+                            if (elem.value) {
+                                var no_of_birth = {};
+                                var name = {};
+                                name.areas=elem.county  +":{" +"text : {" +"content:" +elem.county +"}" +"},";
+                                counties[id] = name;
+                            } 
+                            else {
+                                console.warn("Ignored element " + id + " without GPS position");
+                            }
+                        });
+                        
+                        /**
+                         * @ Summary Draws this particular mapael map
+                         *
+                         * Some colors used in the fill attributes are taken from the 
+                         * color-hex palettes at http://www.color-hex.com/color-palettes/
+                         */
+                    
+                        $(".mapcontainer").mapael({
+                            map: {
+                                name: "vital_stats_birth",
+                                
+                                defaultPlot: {
+                                    size: 4,
+                                    eventHandlers: {
+                                        mouseover: function (e, id, mapElem, textElem, elemOptions) {
+                                            if (typeof elemOptions.myText != 'undefined') {
+                                                $('.myText span').html(elemOptions.myText).css({display: 'none'}).fadeIn('slow');
+                                            }
+                                        }
+                                    }
+                                },
+                                
+                                defaultArea: {
+                                 
+                                    attrs: {
+                                        fill: "#f4f7c3",
+                                        stroke: mapStrokeColor,
+                                        "stroke-width": 1
+                                    },
+                                    attrsHover: {
+                                    //     fill: "#a4e100"
+                                        fill: "#face58"
+                                    },
+                                    text: {
+                                        
+                                        attrs: {
+                                            fill: mapTextColor
+                                        },
+                                        attrsHover: {
+                                            fill: "#020202"
+                                        }
+                                    }
+                                },
+                                
+                                zoom: {
+                                    enabled: true,
+                                    maxLevel: 50
+                                }                               
+                            },
+                            
+                            legend: {
+                                area: {
+                                    mode: "horizontal",  // runs legend horizontally
+                                    title: "Quartiles",
+                                    // The exclusive attribute determines if clicking on a legend slice
+                                    // highlights that slice on the map and de-highlights all the
+                                    // other highlights. If not true (the default is false), the legend
+                                    // clicks will work as toggles, click once to highlight, click again
+                                    // to turn highlight off. If you click different legend items in 
+                                    // succession with exclusive set to true, it will only highlight 
+                                    // the most recent slice clicked. 
+                                    exclusive: false,
+                                    slices: [
+                                        {
+                                            max: 9.14,
+                                            attrs: {
+                                                fill: color[0] // first color in palette
+                                            },
+                                            label: "Below - 9.10 ",
+                                            clicked: false // determines if slice appears highlighted on initial screen display
+                                            // if set to false (default) the slice will be highlighted in its legend color
+                                            // it set to true, the slice will not be highlighted on initial display
+                                        },
+                                        {
+                                            min: 9.15,
+                                            max: 10.34,
+                                            attrs: {
+                                                fill: color[1] // second color in palette
+                                            },
+                                            label: "9.2 - 10.3",
+                                            clicked: false
+                                        },
+                                        {
+                                            min: 10.35,
+                                            max: 11.3,
+                                            attrs: {
+                                                fill: color[2] // third color in palette
+                                            },
+                                            text: {
+                                              attrs: {
+                                                //fill: "#000000"
+                                              } 
+                                            },
+                                            label: "10.4 - 11.2",
+                                            clicked: false      
+                                        },
+                                        {
+                                            min: 11.3,
+                                            attrs: {
+                                                fill: color[3] // fourth color in palette
+                                            },
+                                            label: "11.3 and above",
+                                            clicked: false
+                                        }
+                                    ]
+                                } // close out area attributes for legend
+                            },  // close out legend attributes
+                            
+                            /* THIS AREAS IS OLD, NOT NEEDED, REDEFINED BELOW
+                            areas:{
+                                counties: counties
+                            },
+                            */
+                            areas: {
+                                "Albany": {
+                                    value: arr[10], 
+                                    href: "#",
+                                    text: {content: "Albany", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Albany</span><hr>Birth Rate Total : "+oneDecimal(arr[10])+"<br />Fertility Rate Total : "+oneDecimal(arr[9])}
+                                },
+                                "Allegany": {
+                                    value: arr[20],
+                                    href: "#",
+                                    text: {content: "Allegany", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Allegany</span><hr>Birth Rate Total : "+oneDecimal(arr[20])+"<br />Fertility Rate Total : "+oneDecimal(arr[21])}
+                                },
+                                "Bronx": {
+                                    value: arr[31],
+                                    href: "#",
+                                    text: {content: "Broome", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Bronx</span><hr>Birth Rate Total : "+oneDecimal(arr[31])+"<br />Fertility Rate Total : "+oneDecimal(arr[32])}
+                                },
+                                "Broome": {
+                                    value: arr[43],
+                                    href: "#",
+                                    text: {content: "Broome", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Broome</span><hr>Birth Rate Total : "+oneDecimal(arr[43])+"<br />Fertility Rate Total : "+oneDecimal(arr[42])}
+                                },
+                                "Cattaraugus": {
+                                    value: arr[54],
+                                    href: "#",
+                                    text: {content: "Cattaraugus", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Cattaraugus</span><hr>Birth Rate Total : "+oneDecimal(arr[54])+"<br />Fertility Rate Total : "+oneDecimal(arr[53])}
+                                },
+                                "Cayuga": {
+                                    value: arr[64],
+                                    href: "#",
+                                    text: {content: "Cayuga", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Cayuga</span><hr>Birth Rate Total : "+oneDecimal(arr[64])+"<br />Fertility Rate Total : "+oneDecimal(arr[65])}
+                                },
+                                "Chautauqua": {
+                                    value: arr[76],
+                                    href: "#",
+                                    text: {content: "Chautauqua", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Chautauqua</span><hr>Birth Rate Total : "+oneDecimal(arr[76])+"<br />Fertility Rate Total : "+oneDecimal(arr[75])}
+                                },
+                                "Chemung": {
+                                    value: arr[86],
+                                    href: "#",
+                                    text: {content: "Chemung", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Chemung</span><hr>Birth Rate Total : "+oneDecimal(arr[86])+"<br />Fertility Rate Total : "+oneDecimal(arr[87])}
+                                },
+                                "Chenango": {
+                                    value: arr[97],
+                                    href: "#",
+                                    text: {content: "Chenango", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Chenango</span><hr>Birth Rate Total : "+oneDecimal(arr[97])+"<br />Fertility Rate Total : "+oneDecimal(arr[98])}
+                                },
+                                "Clinton": {
+                                    value: arr[108],
+                                    href: "#",
+                                    text: {content: "Clinton", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Clinton </span><hr>Birth Rate Total : "+oneDecimal(arr[108])+"<br />Fertility Rate Total : "+oneDecimal(arr[109])}
+                                },
+                                "Columbia": {
+                                    value: arr[119],
+                                    href: "#",
+                                    text: {content: "Columbia", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Columbia</span><hr>Birth Rate Total : "+oneDecimal(arr[119])+"<br />Fertility Rate Total : "+oneDecimal(arr[120])}
+                                },
+                                "Cortland": {
+                                    value: arr[130],
+                                    href: "#",
+                                     text: {content: "Cortland", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Cortland</span><hr>Birth Rate Total : "+oneDecimal(arr[130])+"<br />Fertility Rate Total : "+oneDecimal(arr[131])}
+                                },
+                                "Delaware": {
+                                    value: arr[141],
+                                    href: "#",
+                                    text: {content: "Delaware", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Delaware</span><hr>Birth Rate Total : "+oneDecimal(arr[141])+"<br />Fertility Rate Total : "+oneDecimal(arr[142])}
+                                },
+                                "Dutchess": {
+                                    value: arr[152],
+                                    href: "#",
+                                    text: {content: "Dutchess", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Dutchess</span><hr>Birth Rate Total : "+oneDecimal(arr[152])+"<br />Fertility Rate Total : "+oneDecimal(arr[153])}
+                                },
+                                "Erie": {
+                                    value: arr[164],
+                                    href: "#",
+                                    text: {content: "Erie", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Erie</span><hr>Birth Rate Total : "+oneDecimal(arr[164])+"<br />Fertility Rate Total : "+oneDecimal(arr[163])}
+                                },
+                                "Essex": {
+                                    value: arr[174],
+                                    href: "#",
+                                    text: {content: "Essex", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Essex </span><hr>Birth Rate Total : "+oneDecimal(arr[174])+"<br />Fertility Rate Total : "+oneDecimal(arr[175])}
+                                },
+                                "Franklin": {
+                                    value: arr[185],
+                                    href: "#",
+                                    text: {content: "Franklin", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Franklin</span><hr>Birth Rate Total : "+oneDecimal(arr[185])+"<br />Fertility Rate Total : "+oneDecimal(arr[186])}
+                                },
+                                "Fulton": {
+                                    value: arr[197],
+                                    href: "#",
+                                    text: {content: "Fulton", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Fulton </span><hr>Birth Rate Total : "+oneDecimal(arr[197])+"<br />Fertility Rate Total : "+oneDecimal(arr[196])}
+                                },
+                                "Genesee": {
+                                    value: arr[207],
+                                    href: "#",
+                                    text: {content: "Genesee", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Genesee</span><hr>Birth Rate Total : "+oneDecimal(arr[207])+"<br />Fertility Rate Total : "+oneDecimal(arr[208])}
+                                },
+                                 "Greene": {
+                                    value: arr[218],
+                                    href: "#",
+                                    text: {content: "Greene", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Greene</span><hr>Birth Rate Total : "+oneDecimal(arr[218])+"<br />Fertility Rate Total : "+oneDecimal(arr[219])}
+                                },
+                                "Hamilton": {
+                                    value: arr[229],
+                                    href: "#",
+                                    text: {content: "Hamilton", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Hamilton </span><hr>Birth Rate Total : "+oneDecimal(arr[229])+"<br />Fertility Rate Total : "+oneDecimal(arr[230])}
+                                },
+                                "Herkimer": {
+                                    value: arr[240],
+                                    href: "#",
+                                    text: {content: "Herkimer", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Herkimer </span><hr>Birth Rate Total : "+oneDecimal(arr[240])+"<br />Fertility Rate Total : "+oneDecimal(arr[241])}
+                                },
+                                "Jefferson": {
+                                    value: arr[252],
+                                    href: "#",
+                                    text: {content: "Jefferson", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Jefferson</span><hr>Birth Rate Total : "+oneDecimal(arr[252])+"<br />Fertility Rate Total : "+oneDecimal(arr[251])}
+                                },
+                                "Kings": {
+                                    value: arr[263],
+                                    href: "#",
+                                    text: {content: "Kings", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Kings</span><hr>Birth Rate Total : "+oneDecimal(arr[263])+"<br />Fertility Rate Total : "+oneDecimal(arr[262])}
+                                },
+                                "Lewis": {
+                                    value: arr[274],
+                                    href: "#",
+                                    text: {content: "Lewis", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Lewis </span><hr>Birth Rate Total : "+oneDecimal(arr[274])+"<br />Fertility Rate Total : "+oneDecimal(arr[273])}
+                                },
+                                "Livingston": {
+                                    value: arr[284],
+                                    href: "#",
+                                    text: {content: "Livingston", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Livingston</span><hr>Birth Rate Total : "+oneDecimal(arr[284])+"<br />Fertility Rate Total : "+oneDecimal(arr[285])}
+                                },
+                                "Madison": {
+                                    value: arr[296],
+                                    href: "#",
+                                    text: {content: "Madison", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Madison</span><hr>Birth Rate Total : "+oneDecimal(arr[296])+"<br />Fertility Rate Total : "+oneDecimal(arr[295])}
+                                },
+                                "Monroe": {
+                                    value: arr[307],
+                                    href: "#",
+                                    text: {content: "Monroe", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Monroe</span><hr>Birth Rate Total : "+oneDecimal(arr[307])+"<br />Fertility Rate Total : "+oneDecimal(arr[306])}
+                                },
+                                "Montgomery": {
+                                    value: arr[317],
+                                    href: "#",
+                                    text: {content: "Montgomery", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Montgomery</span><hr>Birth Rate Total : "+oneDecimal(arr[317])+"<br />Fertility Rate Total : "+oneDecimal(arr[318])}
+                                },
+                                "Nassau": {
+                                    value: arr[328],
+                                    href: "#",
+                                    text: {content: "Nassau", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Nassau</span><hr>Birth Rate Total : "+oneDecimal(arr[328])+"<br />Fertility Rate Total : "+oneDecimal(arr[329])}
+                                },
+                                "New York": {
+                                    value: arr[339],
+                                    href: "#",
+                                    text: {content: "New York", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">New York</span><hr>Birth Rate Total : "+oneDecimal(arr[339])+"<br />Fertility Rate Total : "+oneDecimal(arr[340])}
+                                },
+                                "Niagara": {
+                                    value: arr[373],
+                                    href: "#",
+                                    text: {content: "Niagara", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Niagara</span><hr>Birth Rate Total : "+oneDecimal(arr[373])+"<br />Fertility Rate Total : "+oneDecimal(arr[372])}
+                                },
+                                "Oneida": {
+                                    value: arr[384],
+                                    href: "#",
+                                    text: {content: "Oneida", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Oneida</span><hr>Birth Rate Total : "+oneDecimal(arr[384])+"<br />Fertility Rate Total : "+oneDecimal(arr[383])}
+                                },
+                                "Onondaga": {
+                                    value: arr[394],
+                                    href: "#",
+                                    text: {content: "Onondago", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Onondaga</span><hr>Birth Rate Total : "+oneDecimal(arr[394])+"<br />Fertility Rate Total : "+oneDecimal(arr[395])}
+                                },
+                                "Ontario": {
+                                    value: arr[405],
+                                    href: "#",
+                                    text: {content: "Ontario", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Ontario</span><hr>Birth Rate Total : "+oneDecimal(arr[405])+"<br />Fertility Rate Total : "+oneDecimal(arr[406])}
+                                },
+                                "Orange": {
+                                    value: arr[416],
+                                    href: "#",
+                                    text: {content: "Orange", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Orange</span><hr>Birth Rate Total : "+oneDecimal(arr[416])+"<br />Fertility Rate Total : "+oneDecimal(arr[417])}
+                                },
+                                "Orleans": {
+                                    value: arr[427],
+                                    href: "#",
+                                    text: {content: "Orleans", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Orleans</span><hr>Birth Rate Total : "+oneDecimal(arr[427])+"<br />Fertility Rate Total : "+oneDecimal(arr[428])}
+                                },
+                                "Oswego": {
+                                    value: arr[438],
+                                    href: "#",
+                                    text: {content: "Oswego", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Oswego</span><hr>Birth Rate Total : "+oneDecimal(arr[438])+"<br />Fertility Rate Total : "+oneDecimal(arr[439])}
+                                },
+                                "Otsego": {
+                                    value: arr[449],
+                                    href: "#",
+                                    text: {content: "Otsego", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Otsego</span><hr>Birth Rate Total : "+oneDecimal(arr[449])+"<br />Fertility Rate Total : "+oneDecimal(arr[450])}
+                                },
+                                "Putnam": {
+                                    value: arr[461],
+                                    href: "#",
+                                    text: {content: "Putnam", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Putnam</span><hr>Birth Rate Total : "+oneDecimal(arr[461])+"<br />Fertility Rate Total : "+oneDecimal(arr[460])}
+                                },
+                                "Queens": {
+                                    value: arr[472],
+                                    href: "#",
+                                    text: {content: "Queens", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Queens</span><hr>Birth Rate Total : "+oneDecimal(arr[472])+"<br />Fertility Rate Total : "+oneDecimal(arr[471])}
+                                },
+                                 "Rensselaer": {
+                                    value: arr[482],
+                                    href: "#",
+                                    text: {content: "Rensselaer", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Rensselaer</span><hr>Birth Rate Total : "+oneDecimal(arr[482])+"<br />Fertility Rate Total : "+oneDecimal(arr[483])}
+                                },
+                                "Richmond": {
+                                    value: arr[504],
+                                    href: "#",
+                                    text: {content: "Richmond", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Richmond</span><hr>Birth Rate Total : "+oneDecimal(arr[504])+"<br />Fertility Rate Total : "+oneDecimal(arr[505])}
+                                },
+                                "Rockland": {
+                                    value: arr[515],
+                                    href: "#",
+                                    text: {content: "Rockland", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Rockland</span><hr>Birth Rate Total : "+oneDecimal(arr[515])+"<br />Fertility Rate Total : "+oneDecimal(arr[516])}
+                                },
+                                "Saratoga": {
+                                    value: arr[526],
+                                    href: "#",
+                                    text: {content: "Saratoga ", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Saratoga</span><hr>Birth Rate Total : "+oneDecimal(arr[526])+"<br />Fertility Rate Total : "+oneDecimal(arr[527])}
+                                },
+                                "Schenectady": {
+                                    value: arr[538],
+                                    href: "#",
+                                    text: {content: "Schenectady", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Schenectady</span><hr>Birth Rate Total : "+oneDecimal(arr[538])+"<br />Fertility Rate Total : "+oneDecimal(arr[537])}
+                                },
+                                "Schoharie": {
+                                    value: arr[549],
+                                    href: "#",
+                                    text: {content: "Schoharie", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Schoharie</span><hr>Birth Rate Total : "+oneDecimal(arr[549])+"<br />Fertility Rate Total : "+oneDecimal(arr[548])}
+                                },
+                                "Schuyler": {
+                                    value: arr[559],
+                                    href: "#",
+                                    text: {content: "Schuyler", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Schuyler</span><hr>Birth Rate Total : "+oneDecimal(arr[559])+"<br />Fertility Rate Total : "+oneDecimal(arr[560])}
+                                },
+                                "Seneca": {
+                                    value: arr[571],
+                                    href: "#",
+                                    text: {content: "Seneca", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Seneca</span><hr>Birth Rate Total : "+oneDecimal(arr[571])+"<br />Fertility Rate Total : "+oneDecimal(arr[570])}
+                                },
+                                "Steuben": {
+                                    value: arr[582],
+                                    href: "#",
+                                    text: {content: "Steuben", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Steuben</span><hr>Birth Rate Total : "+oneDecimal(arr[582])+"<br />Fertility Rate Total : "+oneDecimal(arr[581])}
+                                },
+                                "St Lawrence": {
+                                    value: arr[592],
+                                    href: "#",
+                                    text: {content: "St. Lawrence", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">St Lawrence</span><hr>Birth Rate Total : "+oneDecimal(arr[592])+"<br />Fertility Rate Total : "+oneDecimal(arr[593])}
+                                },
+                                "Suffolk": {
+                                    value: arr[603],
+                                    href: "#",
+                                    text: {content: "Suffolk", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Suffolk</span><hr>Birth Rate Total : "+oneDecimal(arr[603])+"<br />Fertility Rate Total : "+oneDecimal(arr[604])}
+                                },
+                                "Sullivan": {
+                                    value: arr[614],
+                                    href: "#",
+                                    text: {content: "Sullivan", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Sullivan</span><hr>Birth Rate Total : "+oneDecimal(arr[614])+"<br />Fertility Rate Total : "+oneDecimal(arr[615])}
+                                },
+                                "Tioga": {
+                                    value: arr[626],
+                                    href: "#",
+                                    text: {content: "Tioga", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Tioga</span><hr>Birth Rate Total : "+oneDecimal(arr[626])+"<br />Fertility Rate Total : "+oneDecimal(arr[625])}
+                                },
+                                "Tompkins": {
+                                    value: arr[636],
+                                    href: "#",
+                                    text: {content: "Tompkins", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Tompkins</span><hr>Birth Rate Total : "+oneDecimal(arr[636])+"<br />Fertility Rate Total : "+oneDecimal(arr[637])}
+                                },
+                                "Ulster": {
+                                    value: arr[648],
+                                    href: "#",
+                                    text: {content: "Ulster", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Ulster</span><hr>Birth Rate Total : "+oneDecimal(arr[648])+"<br />Fertility Rate Total : "+oneDecimal(arr[647])}
+                                },
+                                "Warren": {
+                                    value: arr[659],
+                                    href: "#",
+                                    text: {content: "Warren", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Warren</span><hr>Birth Rate Total : "+oneDecimal(arr[659])+"<br />Fertility Rate Total : "+oneDecimal(arr[658])}
+                                },
+                                "Washington": {
+                                    value: arr[670],
+                                    href: "#",
+                                    text: {content: "Washington", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Washington</span><hr>Birth Rate Total : "+oneDecimal(arr[670])+"<br />Fertility Rate Total : "+oneDecimal(arr[669])}
+                                },
+                                "Wayne": {
+                                    value: arr[681],
+                                    href: "#",
+                                    text: {content: "Wayne", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Wayne</span><hr>Birth Rate Total : "+oneDecimal(arr[681])+"<br />Fertility Rate Total : "+oneDecimal(arr[680])}
+                                },
+                                "Westchester": {
+                                    value: arr[691],
+                                    href: "#",
+                                    text: {content: "West-Chester", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">West-Chester</span><hr>Birth Rate Total : "+oneDecimal(arr[691])+"<br />Fertility Rate Total : "+oneDecimal(arr[692])}
+                                },
+                                "Wyoming": {
+                                    value: arr[702],
+                                    href: "#",
+                                    text: {content: "Wyoming", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Wyoming </span><hr>Birth Rate Total : "+oneDecimal(arr[702])+"<br />Fertility Rate Total : "+oneDecimal(arr[703])}
+                                },
+                                "Yates": {
+                                    value: arr[714],
+                                    href: "#",
+                                    text: {content: "Yates", attrs: {"font-size": 10}},
+                                    tooltip: {content: "<span style=\"font-weight:bold;\">Yates</span><hr>Birth Rate Total : "+oneDecimal(arr[714])+"<br />Fertility Rate Total : "+oneDecimal(arr[713])}
+                                }                           
+                           }  // close out areas of individual counties
+                        }); // close out $(".mapcontainer").mapael)
+
+                    // handle fail condition on $.getJSON
+                    }).fail(function() {
+                        // Error
+                        $(".mapcontainer span").html("Failed to load JSON data").css({"color":"red"});
+                    }); //end fail function
+
+                }  // close out draw function 
+          
+            }); // close out containing closure function
+            
+        </script>
+			<div style="text-align:right; margin-bottom:-25px;">
+            <a href="index.html#annual">Back to Portal Page</a>
+        </div>
+        <h1></h1>
+        <h2></h2>
+      
+        <div style="margin: -12px 0; clear:both;"></div>
+        
+        <fieldset style="margin-bottom: 12px; background-color: #f2f2f2">
+            <legend>Filter map by year and colors</legend>
+            <span id="return"/>
+        </fieldset>
+        
+        <div class="container">
+            <div class="myText" style="height:80px">Move your cursor over any county to see Birth rate per 1000 population by county.<br/>Click any quartile from the legend below to shade out the counties on the map within that range. Click it again to refocus those counties.
+            </div>
+      
+            <div class="mapcontainer">
+              <div class="areaLegend myText2" style="height:80px">
+                <span>Alternative content for the legend</span>
+              </div>
+              <div class="map">
+                <span>Alternative content for the map</span>
+              </div>
+            </div>
+      </div>
+            </div>
+        </div>
+
+
+
+
+
+        <!-- jQuery CDN -->
+         
+         <!-- Bootstrap Js CDN -->
+         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+         <!-- jQuery Nicescroll CDN -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js"></script>
+
+         <script type="text/javascript">
+             $(document).ready(function () {
+                 $("#sidebar").niceScroll({
+                     cursorcolor: '#53619d',
+                     cursorwidth: 4,
+                     cursorborder: 'none'
+                 });
+
+                 $('#sidebarCollapse').on('click', function () {
+                     $('#sidebar, #content').toggleClass('active');
+                     $('.collapse.in').toggleClass('in');
+                     $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+                 });
+             });
+         </script>
+    </body>
+</html>

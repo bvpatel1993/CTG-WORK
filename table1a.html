@@ -1,0 +1,129 @@
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link rel="stylesheet" href="css/doh16-styles.css"></link>
+  <link rel="stylesheet" href="css/doh16-print.css"></link>
+  <script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+  <script src="d3.min.js"></script>
+  <script src="modules/commonModules.js"></script>
+  <script src="table1a.js"></script>
+        <title>DEMO CTG</title>
+
+         <!-- Bootstrap CSS CDN -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Our Custom CSS -->
+        <link rel="stylesheet" href="style2.css">
+    </head>
+    <body>
+
+
+
+        <div class="wrapper">
+            <!-- Sidebar Holder -->
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                  <h3 align="center"><a href="index.html">CTG</a></h3>
+                </div>
+
+                <ul class="list-unstyled components">
+                    
+                    <li class="active">
+                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Tables</a>
+                        <ul class="collapse list-unstyled" id="homeSubmenu">
+                             <li><a href="table1a.html">Table 1a</a></li>
+                            <li><a href="table4.html">Table 4</a></li>
+                            
+                        </ul>
+                    </li>
+                    <li>
+                     
+                        <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Charts</a>
+                        <ul class="collapse list-unstyled" id="pageSubmenu">
+                            <li><a href="annual-chart1.html">Chart 1 (Page - 8)</a></li>
+                            <li><a href="annual-chart2.html">Chart 2 (Page - 9)</a></li>
+                            <li><a href="annual-chart7.html">Chart 7 (Page - 46)</a></li>
+                            <li><a href="annual-chart11.html">Chart 11 (Page - 48)</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                       
+						  <a href="#mapSubmenu" data-toggle="collapse" aria-expanded="false">Maps</a>
+                        <ul class="collapse list-unstyled" id="mapSubmenu">
+                            <li><a href="annual-map1.html">Map 1 (Page - 13)</a></li>
+							<li><a href="map-adult-care-facilities.html">Map Adult Care Facility</a></li>
+                          </ul>
+                    </li>
+                   
+                </ul>
+
+              
+            </nav>
+				</div>
+		<div class="wrapper">
+            <!-- Page Content Holder -->
+			
+            <div id="content">
+				
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+
+                        <div class="navbar-header">
+                            <button type="button" id="sidebarCollapse" class="btn btn-info navbar-btn">
+                                <i class="glyphicon glyphicon-align-left"></i>
+                                <span>Menu</span>
+                            </button>
+                        </div>
+
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                           
+                        </div>
+                    </div>
+                </nav>
+
+               <div style="text-align:right; margin-bottom:-15px;"><a href="index.html#vital">Back to Portal Page</a></div>
+				<h1>Vital Statistics</h1>
+				<div style="margin-top:-30px;float:right"><a href="https://www.health.ny.gov/statistics/vital_statistics/2014/table01a.htm">NYSDOH table --></a><br />
+				<a href="https://health.data.ny.gov/Health/New-York-State-Population-Data-Beginning-2003/e9uj-s3sf">Open Data Set --></a></div>
+				<div style="margin: 0; clear:both;"></div>
+				<p style="font-style: italic; font-size: 1.1em;">The age groupings for the columns in this table does not match the age groupings in the <a href="https://www.health.ny.gov/statistics/vital_statistics/2014/table01a.htm">table on the NYSDOH website</a> because the <a href="https://health.data.ny.gov/Health/New-York-State-Population-Data-Beginning-2003/e9uj-s3sf"> open data set</a> has different age groupings than the NYSDOH website table.<br />Perhaps there is another open data set that matches the table?</p>
+				<a name="selectLists" id="selectLists" class="selections"></a> 
+             
+            </div>
+        </div>
+
+
+
+
+
+        <!-- jQuery CDN -->
+         <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+         <!-- Bootstrap Js CDN -->
+         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+         <!-- jQuery Nicescroll CDN -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js"></script>
+
+         <script type="text/javascript">
+             $(document).ready(function () {
+                 $("#sidebar").niceScroll({
+                     cursorcolor: '#53619d',
+                     cursorwidth: 4,
+                     cursorborder: 'none'
+                 });
+
+                 $('#sidebarCollapse').on('click', function () {
+                     $('#sidebar, #content').toggleClass('active');
+                     $('.collapse.in').toggleClass('in');
+                     $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+                 });
+             });
+         </script>
+    </body>
+</html>

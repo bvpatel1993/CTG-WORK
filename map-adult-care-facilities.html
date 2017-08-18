@@ -1,0 +1,1169 @@
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link rel="stylesheet" href="css/doh16-map-styles.css"></link>
+        <link rel="stylesheet" href="css/doh16-styles.css"></link>
+		<link rel="stylesheet" href="css/doh16-print.css"></link>
+  
+        <title>CTG</title>
+
+         <!-- Bootstrap CSS CDN -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Our Custom CSS -->
+        <link rel="stylesheet" href="style2.css">
+		<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+		<script src="d3.min.js"></script>
+		<script src="d3-tip.js"></script>
+		<script src="js/maps/jquery.mousewheel.min.js"></script>
+        <script src="js/maps/raphael.min.js"></script>
+		<script src="js/maps/jquery.mapael.min.js" charset="utf-8"></script>
+        <script src="js/maps/my_map_dynamic.js" charset="utf-8"></script>
+        <script src="js/maps/world_countries.js" charset="utf-8"></script>
+        <script src="js/maps/usa_states.js" charset="utf-8"></script>
+       
+  <script src="modules/commonModules.js"></script>
+ 
+    </head>
+    <body>
+
+
+
+        <div class="wrapper">
+            <!-- Sidebar Holder -->
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                  <h3 align="center"><a href="index.html">CTG</a></h3>
+                </div>
+
+                <ul class="list-unstyled components">
+                    
+                    <li class="active">
+                        <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false">Tables</a>
+                        <ul class="collapse list-unstyled" id="homeSubmenu">
+                            <li><a href="table1a.html">Table 1a</a></li>
+                            <li><a href="table4.html">Table 4</a></li>
+                            
+                        </ul>
+                    </li>
+                    <li>
+                     
+                        <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Charts</a>
+                        <ul class="collapse list-unstyled" id="pageSubmenu">
+                            <li><a href="annual-chart1.html">Chart 1 (Page - 8)</a></li>
+                            <li><a href="annual-chart2.html">Chart 2 (Page - 9)</a></li>
+                            <li><a href="annual-chart7.html">Chart 7 (Page - 46)</a></li>
+                            <li><a href="annual-chart11.html">Chart 11 (Page - 48)</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                       
+						 <a href="#mapSubmenu" data-toggle="collapse" aria-expanded="false">Maps</a>
+                        <ul class="collapse list-unstyled" id="mapSubmenu">
+                            <li><a href="annual-map1.html">Map 1 (Page - 13)</a></li>
+							<li><a href="map-adult-care-facilities.html">Map Adult Care Facility</a></li>
+                          </ul>
+                    </li>
+                   
+                </ul>
+
+              
+            </nav>
+				</div>
+		<div class="wrapper">
+            <!-- Page Content Holder -->
+			
+            <div id="content">
+				
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+
+                        <div class="navbar-header">
+                            <button type="button" id="sidebarCollapse" class="btn btn-info navbar-btn">
+                                <i class="glyphicon glyphicon-align-left"></i>
+                                <span>Menu</span>
+                            </button>
+                        </div>
+
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                           
+                        </div>
+                    </div>
+                </nav>
+
+           <script type="text/javascript">
+        
+            var selectedCounty="All_Counties";
+            var countyIndex2 = "Albany";
+    
+            // selected options from select lists for Population
+            var selectedPalette; 
+
+            // labels for select listfor Population
+            var lblPalette = $('<label for="sbPalette">Select Map Colors: </label>');
+
+            // initializes indexes for select list to 0
+            var paletteIndex = 0;
+
+            // sets default index for each select list on initial page load
+            var paletteIndex2 = 0;
+
+            $(document).ready(function() { 
+    
+                var url = document.location.href;
+                // Only creates array if URL contains query parameters from other page.
+                if (url.indexOf('?') >- 1)	{
+                    var back = url.split('?')[0],
+                        params = url.split('?')[1].split('&'),
+                        data = {}, tmp;
+                    for (var i = 0, l = params.length; i < l; i++) {
+                        tmp = params[i].split('=');
+                        data[tmp[0]] = tmp[1];
+                    }
+                    selectedCounty = data.county;   
+                    countyIndex2 = data.county;         
+                } 
+              
+                // Selects distinct counties sorted alphabetically to fill select drop-down list       
+                    d3.csv( "https://health.data.ny.gov/resource/3jtn-arcj.csv?$limit=50000&$select=county&$group=county&$order=county", function(error, data) {
+                        if (error) throw error;
+                        
+                    // Creates year array for select list
+                    // Also saves the first year in the array as the default
+                    // selectedYear variable. This variable is used to query the dataset later 
+                    // and to display the year in theheading. 
+                    paletteArray = ["paletteBlue", "Blue", "paletteDarkBlue", "DarkBlue", "paletteGreen", "Green", "paletteBrown", "Brown", "paletteRed", "Red", "paletteYellow", "Yellow", "paletteGray", "Gray"];
+                    
+                    createSelectList(paletteArray, "sbPalette");
+                    
+                    $('#sbPalette').prop('selectedIndex', paletteIndex2);
+                    selectedPalette = $('#sbPalette').val();
+        
+                    var countyArray = []; // create name|value array for select list options
+                    
+                    // Add in default top selection for All|All Counties
+                    countyArray.push("All_Counties");
+                    countyArray.push("All Counties");
+                    
+                    // jQuery function to iterate through array of payers from query
+                    $.each( data, function(i, item) {
+                        // replace spaces with underscores in option values
+                        countyArray.push(item['county'].replace(/\s/g,"_"));
+                        // display option name as is, no regex replacements
+                        countyArray.push(item['county']);
+                    })
+                    
+                    // call createSelectList function with new parameter values
+                    createSelectList(countyArray, "sbCounty");	
+
+                    $('#sbCounty option[value="'+selectedCounty+'"]').attr('selected','selected');
+                    
+                    selectedCounty = $('#sbCounty').val();
+ 
+                    selectedCounty = selectedCounty.replace(/_/g,' ');   
+
+                    // call initializePage function
+                    initializePage();
+
+                });  // close out d3.csv 
+
+
+                /**
+                 * @summary Generates the options for the select list.
+                 *
+                 * Generates the select list based on the query results for County 
+                 * in the document.ready function.
+                 *
+                 * @variable var sel - HTML element with class and ID for the select list 
+                 *
+                 * @parameter {object} sBoxElements - the array of query results for  
+                 *      the select box: countyArray. 
+                 * @parameter {object} sbID - the name passed to the query array, sbCounty,
+                 * to use as the ID for the HTML select element.
+                 */
+                function createSelectList (sBoxElements, sbID) {
+                    
+                    // Create the selection element.
+                    var sel = $('<select class="sBoxes" id="'+sbID+'"></select>');
+
+                    // loops through the array of options.
+                    for (index = 0; index < sBoxElements.length; index += 2) {                       
+                        // Append the option to the selection box.
+                        sel.append('<option value='+sBoxElements[index]+'>'+sBoxElements[index+1]+'</option>');
+                    }
+                    var fieldSet = $('<fieldset style="margin-bottom: 12px; background-color: #f2f2f2"><legend>Filter map by county</legend>'+sel+'</fieldset>')
+                    
+                    // Append the selection box to the correct position within fieldset.
+                    $(sel).insertAfter('legend');
+                }
+
+                /**
+                 * @summary Creates page elements above the table.
+                 *
+                 * Inserts the select list label before the select lists
+                 * Calls preDraw function to print page heading
+                 */
+                function initializePage() {	
+
+                    // Builds top of page with select lists and labels
+                    var lblCounty = $('<label for="sbCounty">County: </label>');
+                    $(lblCounty).insertBefore('#sbCounty');
+                    $(lblPalette).insertBefore('#sbPalette');
+                    
+                    // Calls preDraw function to print the page heading when selection changes
+                    $('#sbCounty').change(function() { 
+                        $('#goto').attr('value','Zoom on ' +$('#sbCounty').val());
+                        preDraw();     
+                    }); 
+                    
+                     // Re-queries to rebuild select list based on change in Palette selection.
+                    $('#sbPalette').change(function() {
+                        preDraw();        
+                    }); // Closes out Palette change function  
+
+                    // Calls preDraw function to print the page heading on initial page load
+                    preDraw();	
+                      	
+                }
+
+                /**
+                 * @summary Produce heading for top of page and invoke draw function.
+                 *
+                 * Retrieves the value from the selected drop-down list option
+                 * and removes everything below the select button on the page before re-drawing  
+                 * the page heading with current selected option. Then calls the
+                 * draw function to draw table elements based on the currently
+                 * selected option.
+                 */
+                function preDraw() {
+                    selectedCounty = $('#sbCounty').val();
+                    selectedPalette = $('#sbPalette').val(); 
+                    draw();
+                }
+
+                /**
+                 * @summary Draws the table
+                 *
+                 * Uses d3 to select the data for the table basd on parameters submitted by the
+                 * user from the select lists. Declares and calls 1 other function:
+                 * makeTable (which produces the Table display),
+                 *
+                 * @parameter selectedCoutny; //currently selected County from select box
+                 */
+ 
+    
+                function draw() {     
+                    var color;
+                    var mapStrokeColor = "#ced8d0";
+                    var mapTextColor = "#ffffff";
+                    var paletteYellow = ["#f4f7c3"];
+                    var paletteDarkBlue = ["#003399"];
+                    var paletteBlue =["#bdd7e7"];
+                    var paletteBrown = ["#8a5711"];
+                    var paletteRed = ["#ff3f00"];
+                    var paletteGray = ["#999999"];
+                    var paletteGreen = ["#8e9431"];
+                    if (selectedPalette == "paletteYellow") {
+                        color = paletteYellow;
+                        mapStrokeColor = "#000000"
+                        mapTextColor = "#000000";
+                    }
+                    else if (selectedPalette == "paletteDarkBlue") {
+                        color = paletteDarkBlue;
+                    }
+                    else if (selectedPalette == "paletteBlue") {
+                        color = paletteBlue;
+                        mapStrokeColor = "#000000"
+                        mapTextColor = "#000000";
+                    }
+                    else if (selectedPalette == "paletteBrown") {
+                        color = paletteBrown;
+                    }
+                    else if (selectedPalette == "paletteRed") {
+                        color = paletteRed;
+                    }
+                    else if (selectedPalette == "paletteGray") {
+                        color = paletteGray;
+                    }
+                    else if (selectedPalette == "paletteGreen") {
+                    color = paletteGreen;
+                    }
+                    else {
+                        color = paletteBlue;  
+                    }                
+                    $(".mapcontainer span").html("Please be patient. The map is loading.").css({"color":"blue", "font-weight":"bold"});
+            
+                     // Checks if county is selected to insert where clause in query
+                    if (selectedCounty !== "All_Counties" && selectedCounty !== "") {
+                        selector = "&$where=county='"+selectedCounty.replace(/_/g,' ')+"'";
+                         $('h1').html('Adult Care Facilities for ' +selectedCounty.replace(/_/g,' ')+ ' County &#8212; Map');
+                         $('#goto').attr('value','Zoom on ' +selectedCounty+ ' County');
+                        $('#return').html('&nbsp;&nbsp;<a href="table-adult-care-county2.html?county=' +selectedCounty+ '">Return to Directory List for  ' +selectedCounty+ ' County</a>');
+//                        $('h4').html('<a href="videos/map-video.html">Watch video to learn more about this map >>></a>');
+                    }
+                    else {
+                      selector = "";
+                       $('h1').html('Adult Care Facilities for ' +selectedCounty.replace(/_/g,' ')+ ' &#8212; Map');
+                       $('#goto').attr('value','Select County and click this button to zoom in on it');
+                      $('#return').html('&nbsp;&nbsp;<a href="table-adult-care-county2.html">Return to Directory List for all counties</a>');
+ //                      $('h4').html('<a href="videos/map-video.html">Watch video to learn more about this map >>></a>');
+                    }
+
+                    // Get the data
+                    $.getJSON("https://health.data.ny.gov/resource/3jtn-arcj.json?$limit=50000&$select=*"+selector+"&$order=county,city", function (data) {
+                
+                        // Success
+                        // This variable will hold all the plots of our map
+                        var plots = {};
+
+                        // Parse each elements
+                        $.each(data, function (id, elem) {
+                            // Check if we have the GPS position of the element
+                            if (elem.location) {
+                                // Will hold the plot information
+                                var plot = {};
+                                // Assign position
+                                plot.latitude = elem.location.coordinates[1];
+                                plot.longitude = elem.location.coordinates[0];
+                                
+                                // Create variable for address with street number only
+                                // no PO Box or Apt No or anything after comma
+                                // because that messes up link to google maps
+                                var streetAddress = elem.address.split(',')[0];
+                                
+                                $('#goto').on('click', function () {
+                                
+                                    $maparea2.trigger('zoom', {level: 22, latitude: plot.latitude, longitude: plot.longitude});
+
+                                });
+                            
+                                // Assign some information inside the tooltip
+                                plot.tooltip = {
+                                    content: "<span style='font-weight:bold;color: #e4f718; z-index:9999;'>" +
+                                            elem.facility_name + "</span><br/>" + elem.address + "<br/>" + elem.city + ", NY " + elem.zip + " (" +elem.county + ")<br/>Phone: " + elem.phone + "<br/>Fax: " + elem.phone + "<br/>Operator: "  + elem.operator +  "<br/>Number of Beds:  " + elem.number_of_beds,
+                                    // added offset to position tooltip properly centered above the point
+                                    // so it works best for all points
+                                    offset: {left: -25, top: 25}                                          
+                                };
+                                
+                                /* THE LINES BELOW ARE FAILED LINK ATTEMPTS TO LOCATIONS ON GOOGLE MAP   */                             
+                                //                            plot.href = "table-adult-care-county2.html?county="+elem.county;
+                                // zoom doesn't work          plot.href = "http://maps.google.com/maps?q="+plot.latitude+"+"+plot.longitude+"&z=10";
+                                // zoom doesn't work          plot.href = "https://maps.google.com/maps?q="+plot.latitude+","+plot.longitude+"&ll="+plot.latitude+","+plot.longitude+"‌​&z=9"
+                                                            
+                                // lat/long, not address      plot.href = "https://www.google.com/maps/place/"+plot.latitude+","+plot.longitude+"/@"+plot.latitude+","+plot.longitude+",12z/" 
+                                
+                                /* THE LINE BELOW IS A SUCCESSFUL LINK ATTEMPTS TO LOCATIONS ON GOOGLE MAP, USING address before  comma     */ 
+                                plot.href = "https://maps.google.com/maps?q="+streetAddress+",+"+elem.city+",+NY,+"+elem.zip+"&z=10";
+                            
+                                plot.myText = "<span style='font-weight:bold;color: #e4f718;'>"+elem.facility_name+"</span>, " + elem.address + ", " + elem.city + ", NY " + elem.zip + " - Phone: " + elem.phone + " - Fax: " + elem.phone + "<br/>Operator: "  + elem.operator +  " &#151; Number Of Beds: " + elem.number_of_beds + "<br />You can <a href='table-adult-care-county2.html?county="+elem.county+"' class='hint'>view and print a directory</a> of all the facilities, selectable by county.";
+                                // Assign the background color randomize from a scale
+                                if (selectedPalette == "paletteDarkBlue" || selectedPalette == "paletteBrown") {
+                                    plot.attrs = {
+                                        fill: "#ebf953"
+                                    };
+                                }
+                                else if (selectedPalette == "paletteGreen" || selectedPalette == "paletteRed"|| selectedPalette == "paletteGray") {
+                                    plot.attrs = {
+                                        fill: "#000000"
+                                    };
+                                }
+                                else {
+                                    plot.attrs = {
+                                        fill: "#0000ff"
+                                };
+                                
+                                }
+                                // Set plot element to array
+                                plots[id] = plot;
+                            } else {
+                                console.warn("Ignored element " + id + " without GPS position");
+                            }
+                        });  // end each.data function for parsing JSON data
+
+                        // Create map
+                        $maparea2 = $(".mapcontainer").mapael({
+                            map: {
+                                name: "my_map_name", 
+                                defaultPlot: {size: 4,
+                                    eventHandlers: {
+                                        mouseover: function (e, id, mapElem, textElem, elemOptions) {
+                                            if (typeof elemOptions.myText != 'undefined') {
+                                                $('.myText').html(elemOptions.myText).css({display: 'block'}).fadeIn('slow'); // changed .css({display: ) to 'block' to eliminate shift in map when hovering, when .css({display: ) was set to 'none', the hover shifted the map
+                                            }
+                                        }
+                                    }
+                                }, 
+                                zoom: {
+                                    enabled: true,
+                                    maxLevel: 50
+                                },
+                                // Set default plots and areas style
+                                defaultArea: {
+                                    attrs: {
+                                 //       fill: "#f4f7c3", 
+                                          fill: color[0],
+  //                                      stroke: "#ced8d0"
+                                            stroke: mapStrokeColor,
+                                            "stroke-width": 1
+                                    },
+                                    attrsHover: {
+ //                                       fill: "#a4e100"
+                                          fill: "#face58"
+                                    },
+                                    text: {
+                                        attrs: {
+                            //                fill: "#505444"
+                                            fill: mapTextColor
+                                        },
+                                        attrsHover: {
+                        //                    fill: "#000"
+                                            fill: "#020202"
+                                        }
+                                    }
+                                }
+                            },
+
+                            areas: {                     
+                                "US.NY.019": {
+                                    text: {
+                                        content: "Clinton", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    },
+                                    href: "table-adult-care-county2.html?county=Clinton"
+                                },
+                         
+                                "US.NY.033": {
+                                    text: {
+                                        content: "Franklin", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Franklin"
+                                },
+                                
+                                "US.NY.089": {
+                                    text: {
+                                        content: "St. Lawrence", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=St._Lawrence"
+                                },
+                                
+                                "US.NY.031": {
+                                    text: {
+                                        content: "Essex", 
+                                        attrs: {"font-size": 10}
+                                        },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Essex"
+                                },
+                                
+                                "US.NY.041": {
+                                    text: {
+                                        content: "Hamilton", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Hamilton"
+                                },
+                                
+                                "US.NY.043": {
+                                    text: {
+                                        content: "Herkimer", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Herkimer"
+                                },
+                                
+                                "US.NY.049": {
+                                    text: {
+                                        content: "Lewis", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Lewis"
+                                },
+                                
+                                "US.NY.045": {
+                                    text: {
+                                        content: "Jefferson", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Jefferson"
+                                },
+                                
+                                "US.NY.115": {
+                                    text: {
+                                        content: "Washington", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Washington"
+                                },
+                                
+                                "US.NY.113": {
+                                    text: {
+                                        content: "Warren", 
+                                        attrs: {"font-size": 10}
+                                        },
+                                        tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Warren"
+                                },
+                                
+                                "US.NY.091": {
+                                    text: {
+                                        content: "Saratoga ", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Saratoga"
+                                },
+                                
+                                "US.NY.035": {
+                                    text: {
+                                        content: "Fulton", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Fulton"
+                                },
+                                
+                                "US.NY.057": {
+                                    text: {
+                                        content: "Montgomery", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Montgomery"
+                                },
+                                
+                                "US.NY.065": {
+                                    text: {
+                                        content: "Oneida", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Oneida"
+                                },
+                                
+                                "US.NY.075": {
+                                    text: {
+                                        content: "Oswego", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Oswego"
+                                },
+                                
+                                "US.NY.083": {
+                                    text: {
+                                        content: "Rensselaer", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Rensselaer"
+                                },
+                                
+                                "US.NY.001": {
+                                    text: {
+                                        content: "Albany", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Albany"
+                                },
+                                
+                                "US.NY.095": {
+                                    text: {
+                                        content: "Schoharie", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Schoharie"
+                                },
+                                
+                                "US.NY.077": {
+                                    text: {
+                                        content: "Otsego", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Otsego"
+                                },
+                                
+                                "US.NY.053": {
+                                    text: {
+                                        content: "Madison", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Madison"
+                                },
+                                
+                                "US.NY.067": {
+                                    text: {
+                                        content: "Onondago", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Onondago"
+                                },
+                                
+                                "US.NY.011": {
+                                    text: {
+                                        content: "Cayuga", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Cayuga"
+                                },
+                                
+                                "US.NY.117": {
+                                    text: {
+                                        content: "Wayne", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Wayne"
+                                },
+                                
+                                "US.NY.055": {
+                                    text: {
+                                        content: "Monroe", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Monroe"
+                                },
+                                
+                                "US.NY.073": {
+                                    text: {
+                                        content: "Orleans", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Orleans"
+                                },
+                                
+                                "US.NY.063": {
+                                    text: {
+                                        content: "Niagara", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Niagara"
+                                },
+                                
+                                "US.NY.017": {
+                                    text: {
+                                        content: "Chenango", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Chenango"
+                                },
+                                
+                                "US.NY.023": {
+                                    text: {
+                                        content: "Cortland", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Cortland"
+                                },
+                                
+                                "US.NY.109": {
+                                    text: {
+                                        content: "Tompkins", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Tompkins"
+                                },
+
+                                "US.NY.099": {
+                                    text: {
+                                        content: "Seneca", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Seneca"
+                                },
+
+                                "US.NY.069": {
+                                    text: {
+                                        content: "Ontario", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Ontario"
+                                },
+                                
+                                "US.NY.051": {
+                                    text: {
+                                        content: "Livingston", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Livingston"
+                                },
+                                
+                                "US.NY.037": {
+                                  text: {
+                                    content: "Genesee", 
+                                    attrs: {"font-size": 10}
+                                  },
+                                  tooltip: {
+                                    content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                  }, 
+                                  href: "table-adult-care-county2.html?county=Genesee"
+                                },
+         
+                                "US.NY.121": {
+                                  text: {
+                                    content: "Wyoming", 
+                                    attrs: {"font-size": 10}
+                                  },
+                                  tooltip: {
+                                    content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                  }, 
+                                  href: "table-adult-care-county2.html?county=Wyoming"
+                                },
+         
+                                "US.NY.029": {
+                                    text: {
+                                        content: "Erie", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Erie"
+                                },
+                                
+                                "US.NY.123": {
+                                    text: {
+                                        content: "Yates", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Yates"
+                                },
+                                
+                                "US.NY.097": {
+                                    text: {
+                                        content: "Schuyler", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Schuyler"
+                                },
+                                
+                                "US.NY.021": {
+                                    text: {
+                                        content: "Columbia", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Columbia"
+                                },
+                                
+                                "US.NY.039": {
+                                    text: {
+                                        content: "Greene", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Greene"
+                                },
+                                
+                                "US.NY.025": {
+                                  text: {
+                                    content: "Delaware", 
+                                    attrs: {"font-size": 10}
+                                  },
+                                  tooltip: {
+                                    content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                  }, 
+                                  href: "table-adult-care-county2.html?county=Delaware"
+                                },
+                                
+                                "US.NY.007": {
+                                  text: {
+                                    content: "Broome", 
+                                    attrs: {"font-size": 10}
+                                  },
+                                  tooltip: {
+                                    content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                  }, 
+                                  href: "table-adult-care-county2.html?county=Broome"
+                                },
+                                
+                                "US.NY.107": {
+                                    text: {
+                                        content: "Tioga", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Tioga"
+                                },
+                                
+                                "US.NY.015": {
+                                    text: {
+                                        content: "Chemung", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Chemung"
+                                },
+                                
+                                "US.NY.101": {
+                                    text: {
+                                        content: "Steuben", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Steuben"
+                                },
+                                
+                                "US.NY.003": {
+                                    text: {
+                                        content: "Allegany", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Allegany"
+                                },
+                                
+                                "US.NY.009": {
+                                    text: {
+                                        content: "Cattaraugus", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Cattaraugus"
+                                },
+                                
+                                "US.NY.013": {
+                                    text: {
+                                        content: "Chautauqua", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Chautauqua"
+                                },
+                                
+                                "US.NY.027": {
+                                    text: {
+                                        content: "Dutchess", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Dutchess"
+                                },
+                                
+                                "US.NY.111": {
+                                    text: {
+                                        content: "Ulster", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Ulster"
+                                },
+                                
+                                "US.NY.105": {
+                                    text: {
+                                        content: "Sullivan", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Sullivan"
+                                },
+                                
+                                "US.NY.079": {
+                                    text: {
+                                        content: "Putnam", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Putnam"
+                                },
+                                
+                                "US.NY.071": {
+                                    text: {
+                                        content: "Orange", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Orange"
+                                },
+                                
+                                "US.NY.119": {
+                                    text: {
+                                        content: "Westchester", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Westchester"
+                                },
+                                
+                                "US.NY.087": {
+                                    text: {
+                                        content: "Rockland", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Rockland"
+                                },
+                                
+                                "US.NY.005": {
+                                    text: {
+                                        content: "Bronx", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Bronx"
+                                },
+                                
+                                "US.NY.061": {
+                                    text: {
+                                        content: "New York", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=New_York"
+                                    },
+                                
+                                "US.NY.085": {
+                                    text: {
+                                        content: "Richmond", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Richmond"
+                                },
+                                
+                                "US.NY.047": {
+                                    text: {
+                                        content: "Kings", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Kings"
+                                },
+                                
+                                "US.NY.081": {
+                                    text: {
+                                        content: "Queens", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Queens"
+                                },
+                                
+                                "US.NY.059": {
+                                    text: {
+                                        content: "Nassau", 
+                                        attrs: {"font-size": 10}
+                                  },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Nassau"
+                                },
+                                
+                                "US.NY.103": {
+                                    text: {
+                                        content: "Suffolk", 
+                                        attrs: {"font-size": 10}
+                                    },
+                                    tooltip: {
+                                        content: "<span style='font-weight:bold;color: #e4f718;'>Go to Directory List for county</span><br/>"                
+                                    }, 
+                                    href: "table-adult-care-county2.html?county=Suffolk"
+                                },
+                            },  // close out areas of individual counties 
+                            plots: plots
+                        }); // close out $(".mapcontainer").mapael)
+                   
+                    // handle fail condition on $.getJSON
+                    }).fail(function() {
+                        // Error
+                        $(".mapcontainer span").html("Failed to load JSON data").css({"color":"red"});
+                    });  //end fail function
+         
+                } // close out draw function
+
+            }); // end document.ready
+        </script>
+			<div style="text-align:right; margin-bottom:-15px;">
+            <a href="index.html">Back to Portal Page</a>
+        </div>
+        <h1></h1>
+<!--        <h4 style="margin-top:-12px;"></h4>-->
+        <div id="linkorig" style="margin-top:-36px;float:right">
+            <a href="table-adult-care-county2.html"><-- Back to Printable Directory</a>
+        </div>
+        
+        <div style="margin: -12px 0; clear:both;"></div>
+        
+        <fieldset style="margin-bottom: 12px; background-color: #f2f2f2">
+          <legend>Filter map by county</legend>
+          <input type="button" value="Zoom on" id="goto"/>
+          <span id="return"/><span id="video"/>
+        </fieldset>
+        
+        <div class="container">
+            <div class="myText" style="height:100px">Move your cursor over the points plotted on the map to show information about the facility located there.<br/>If you click the point, it will bring you to a google map for that location.<br/>If you click a county area, it will bring you to the Directory List for that county.
+            </div>
+            
+            <div class="mapcontainer">
+                <div class="map">
+                    <span>Alternative content for the map</span>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- jQuery CDN -->
+         
+         <!-- Bootstrap Js CDN -->
+         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+         <!-- jQuery Nicescroll CDN -->
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js"></script>
+
+         <script type="text/javascript">
+             $(document).ready(function () {
+                 $("#sidebar").niceScroll({
+                     cursorcolor: '#53619d',
+                     cursorwidth: 4,
+                     cursorborder: 'none'
+                 });
+
+                 $('#sidebarCollapse').on('click', function () {
+                     $('#sidebar, #content').toggleClass('active');
+                     $('.collapse.in').toggleClass('in');
+                     $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+                 });
+             });
+         </script>
+    </body>
+</html>
